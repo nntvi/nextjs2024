@@ -9,6 +9,9 @@ export default function Home() {
         Hello Vi
       </Button>
       <Card />
+      <div className="w-[700px] h-[700px] bg-red-300">
+        <Image src="/images/img1.jpg" alt="logo" width={700} height={600} />
+      </div>
     </main>
   );
 }
