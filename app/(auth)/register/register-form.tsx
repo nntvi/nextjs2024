@@ -19,8 +19,13 @@ import {
   RegisterBodyType,
 } from "@/schemaValidations/auth.schema";
 import envConfig from "@/config";
+import authApiRequest from "@/apiRequests/auth";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
+  const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
     defaultValues: {
@@ -31,17 +36,41 @@ export default function RegisterForm() {
     },
   });
   async function onSubmit(values: z.infer<typeof RegisterBody>) {
-    const result = await fetch(
-      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
+    try {
+      const result = await authApiRequest.register(values);
+      toast({
+        title: "Đăng ký",
+        description: result?.payload?.message ?? "Đăng ký thành công",
+        duration: 3000,
+      });
+
+      await authApiRequest.auth({
+        sessionToken: result.payload.data.token,
+      });
+      router.push("/me");
+    } catch (error: any) {
+      const errors = error.payload?.errors as {
+        field: string;
+        message: string;
+      }[];
+      const status = error.status as number;
+
+      if (status === 422) {
+        errors.forEach((err) => {
+          form.setError(err.field as "email" | "password", {
+            type: "server",
+            message: err.message, // Set the specific error message for the field
+          });
+        });
+      } else {
+        toast({
+          title: "Lỗi",
+          description: error?.payload?.message ?? "Lỗi không xác định",
+          variant: "destructive",
+          duration: 3000,
+        });
       }
-    ).then((res) => res.json());
-    console.log("🚀 ~ onSubmit ~ result:", result);
+    }
   }
 
   return (
