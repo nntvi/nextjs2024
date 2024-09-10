@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,8 +22,11 @@ import envConfig from "@/config";
 import authApiRequest from "@/apiRequests/auth";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { handleErrorApi } from "@/lib/utils";
 
 export default function RegisterForm() {
+  const [loading, setLoading] = useState(false);
+
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<RegisterBodyType>({
@@ -36,6 +39,8 @@ export default function RegisterForm() {
     },
   });
   async function onSubmit(values: z.infer<typeof RegisterBody>) {
+    if (loading) return;
+    setLoading(true);
     try {
       const result = await authApiRequest.register(values);
       toast({
@@ -49,27 +54,12 @@ export default function RegisterForm() {
       });
       router.push("/me");
     } catch (error: any) {
-      const errors = error.payload?.errors as {
-        field: string;
-        message: string;
-      }[];
-      const status = error.status as number;
-
-      if (status === 422) {
-        errors.forEach((err) => {
-          form.setError(err.field as "email" | "password", {
-            type: "server",
-            message: err.message, // Set the specific error message for the field
-          });
-        });
-      } else {
-        toast({
-          title: "Lỗi",
-          description: error?.payload?.message ?? "Lỗi không xác định",
-          variant: "destructive",
-          duration: 3000,
-        });
-      }
+      handleErrorApi({
+        error,
+        setError: form.setError,
+      });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -129,7 +119,7 @@ export default function RegisterForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full !mt-5">
+          <Button type="submit" className="w-full !mt-5" disabled={loading}>
             Submit
           </Button>
         </form>

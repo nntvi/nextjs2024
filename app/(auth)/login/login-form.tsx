@@ -17,7 +17,10 @@ import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema";
 import { useToast } from "@/components/ui/use-toast";
 import authApiRequest from "@/apiRequests/auth";
 import { useRouter } from "next/navigation";
+import { handleErrorApi } from "@/lib/utils";
+import { useState } from "react";
 export default function LoginForm() {
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<LoginBodyType>({
@@ -29,6 +32,7 @@ export default function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof LoginBody>) {
+    setLoading(true);
     try {
       const result = await authApiRequest.login(values);
 
@@ -43,27 +47,12 @@ export default function LoginForm() {
       });
       router.push("/me");
     } catch (error: any) {
-      const errors = error.payload?.errors as {
-        field: string;
-        message: string;
-      }[];
-      const status = error.status as number;
-
-      if (status === 422) {
-        errors.forEach((err) => {
-          form.setError(err.field as "email" | "password", {
-            type: "server",
-            message: err.message, // Set the specific error message for the field
-          });
-        });
-      } else {
-        toast({
-          title: "Lỗi",
-          description: error?.payload?.message ?? "Lỗi không xác định",
-          variant: "destructive",
-          duration: 3000,
-        });
-      }
+      handleErrorApi({
+        error,
+        setError: form.setError,
+      });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -97,7 +86,7 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full !mt-5">
+          <Button type="submit" className="w-full !mt-5" disabled={loading}>
             Submit
           </Button>
         </form>
