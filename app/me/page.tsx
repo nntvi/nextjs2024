@@ -9,7 +9,7 @@ export default async function MeProfile() {
   return (
     <div>
       <h1>Profile</h1>
-      <div>Xin chào {result?.payload?.data?.name}</div>
+      {/* <div>Xin chào {result?.payload?.data?.name}</div> */}
       <Profile />
     </div>
   );

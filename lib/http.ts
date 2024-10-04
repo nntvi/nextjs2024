@@ -1,12 +1,16 @@
 import envConfig from "@/config";
 import { normalizePath } from "@/lib/utils";
 import { LoginResType } from "@/schemaValidations/auth.schema";
+import { redirect } from "next/navigation";
 
+const promiseDelay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 type CustomRequestInit = RequestInit & {
   baseUrl?: string | undefined;
 };
 
 const ENTITY_ERROR_STATUS = 422;
+const AUTHORIZATION_ERROR_STATUS = 401;
 
 type EntityErrorPayload = {
   message: string;
@@ -61,6 +65,7 @@ class SessionToken {
 }
 // chỉ lưu token ở client thôi
 export const clientSessionToken = new SessionToken();
+let clientLogoutRequest: null | Promise<any> = null;
 
 const request = async <Response>(
   method: "GET" | "POST" | "PUT" | "DELETE",
@@ -104,6 +109,29 @@ const request = async <Response>(
       throw new EntityError(
         data as { status: 422; payload: EntityErrorPayload }
       );
+    } else if (res.status === AUTHORIZATION_ERROR_STATUS) {
+      if (typeof window !== "undefined") {
+        if (!clientLogoutRequest) {
+          clientLogoutRequest = fetch("/api/auth/logout", {
+            method: "POST",
+            headers: {
+              ...baseHeaders,
+            },
+            body: JSON.stringify({
+              force: true,
+            }),
+          });
+          await clientLogoutRequest;
+          clientSessionToken.value = "";
+          clientLogoutRequest = null;
+          location.href = "/login";
+        }
+      } else {
+        const sessionToken = (options?.headers as any)?.Authorization?.split(
+          "Bearer "
+        )[1];
+        redirect(`/logout?sessionToken=${sessionToken}`);
+      }
     } else {
       throw new HttpError(data);
     }
