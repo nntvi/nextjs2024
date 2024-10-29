@@ -43,14 +43,14 @@ export default function RegisterForm() {
     setLoading(true);
     try {
       const result = await authApiRequest.register(values);
+      await authApiRequest.auth({
+        sessionToken: result.payload.data.token,
+        expiresAt: result.payload.data.expiresAt,
+      });
       toast({
         title: "Đăng ký",
         description: result?.payload?.message ?? "Đăng ký thành công",
         duration: 3000,
-      });
-
-      await authApiRequest.auth({
-        sessionToken: result.payload.data.token,
       });
       router.push("/me");
     } catch (error: any) {
