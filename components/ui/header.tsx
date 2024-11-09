@@ -17,6 +17,9 @@ export default function HeaderComponent() {
           <Link href="/register">Register</Link>
         </li>
         <li>
+          <Link href="/products/add">Add Product</Link>
+        </li>
+        <li>
           <ButtonLogout />
         </li>
       </ul>
