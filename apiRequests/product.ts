@@ -1,8 +1,11 @@
 import http from "@/lib/http";
-import { ProductResType } from "@/schemaValidations/product.schema";
+import {
+  ProductListResType,
+  ProductResType,
+} from "@/schemaValidations/product.schema";
 
 const productApiRequest = {
-  get: () => http.get("/products"),
+  getList: () => http.get<ProductListResType>("/products"),
   getDetail: (id: number) => http.get(`/products/${id}`),
   create: (body: any) => http.post<ProductResType>("/products", body),
   uploadImage: (body: FormData) =>
