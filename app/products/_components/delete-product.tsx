@@ -36,30 +36,28 @@ export default function DeleteProduct({
     }
   };
   return (
-    <>
-      <AlertDialog>
-        <AlertDialogTrigger>
-          <Button variant="destructive" className="px-4 py-2">
-            Delete
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Bạn chắc chắn muốn xoá sản phẩm này?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Sản phẩm &rdquo;{product.name}&rdquo; sẽ bị xóa khỏi hệ thống!
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={deleteProduct}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    <AlertDialog>
+      <AlertDialogTrigger>
+        <Button variant="destructive" className="px-4 py-2">
+          Delete
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            Bạn chắc chắn muốn xoá sản phẩm này?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Sản phẩm &rdquo;{product.name}&rdquo; sẽ bị xóa khỏi hệ thống!
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteProduct}>
+            Continue
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
