@@ -70,6 +70,8 @@ const ProductAddForm = ({ product }: { product?: Product }) => {
       if (!isUpdate) {
         router.push("/products");
       }
+
+      router.refresh();
     } catch (error: any) {
       handleErrorApi({
         error,
