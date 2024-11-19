@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [NextJS learning process](https://github.com/nntvi/nextjs2024) project bootstrapped with [`create-next-app`](https://github.com/nntvi/nextjs2024).
 
-## Getting Started
+#### ! Share global state user với các component con thông qua Context
 
-First, run the development server:
+Root Layout là layout tổng, chỉ chạy 1 lần duy nhất khi App của chúng ta chạy
+
+Nếu như mình gọi `me` (để lấy thông tin người dùng vừa đăng nhập) tại header thì không thể chia sẻ cho các component khác được
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+ const cookiesStore = cookies();
+  const sessionToken = cookiesStore.get("sessionToken")?.value;
+  let user = null;
+  if (sessionToken) {
+    const data = await accountApiRequest.me(sessionToken);
+    user = data.payload.data;
+  }
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+=> Chính vì vậy cần xử lý lại chỗ này, lưu vào context để sử dụng nhiều nơi
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Bước 1: đem đoạn code bên trên gọi ở root layout
+- Bước 2: đem thông tin vừa gọi được truyền vào AppProvider
+- Bước 3: Tạo AppContext ở App Provider
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+  ```bash
+  const AppContext = createContext<{
+  user: User | null;
+  setUser: (user: User | null) => void;
+  }>({
+  user: null,
+  setUser: () => {},
+  });
+  export const useAppContext = () => {
+  const context = useContext(AppContext);
+  return context;
+  };
+  ```
 
-## Learn More
+- Bước 4: AppProvider là 1 component cung cấp data cho các component con thông qua context. Vì vậy, khởi tạo thêm state `user` quản lý thông tin user (nếu có)
 
-To learn more about Next.js, take a look at the following resources:
+  ```bash
+  export default function AppProvider({
+  children,
+  initialSessionToken = "",
+  user: userProp,
+  }: {
+  children: React.ReactNode;
+  initialSessionToken: string;
+  user?: User | null;
+  }) {
+      const [user, setUser] = useState<User | null>(userProp || null);
+      useState(() => {
+          if (typeof window !== "undefined") {
+          clientSessionToken.value = initialSessionToken;
+          }
+      });
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+      return (
+          <AppContext.Provider value={{ user, setUser }}>
+          {children}
+          </AppContext.Provider>
+      );
+  }
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Bước 5: ở những page khác để lấy thông tin user đã đăng nhập chỉ cần
+  ```bash
+  const { user } = useAppContext();
+  ```

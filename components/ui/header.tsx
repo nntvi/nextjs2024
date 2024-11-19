@@ -1,20 +1,14 @@
-import accountApiRequest from "@/apiRequests/account";
 import ButtonLogout from "@/components/button-logout";
 import { ModeToggle } from "@/components/toggle-theme";
-import { cookies } from "next/headers";
-import Link from "next/link";
-import React from "react";
 import { Button } from "@/components/ui/button";
+import { AccountResType } from "@/schemaValidations/account.schema";
+import Link from "next/link";
 
-export default async function HeaderComponent() {
-  const cookiesStore = cookies();
-  const sessionToken = cookiesStore.get("sessionToken")?.value;
-  let user = null;
-  if (sessionToken) {
-    const data = await accountApiRequest.me(sessionToken);
-    user = data.payload.data;
-  }
-
+export default async function HeaderComponent({
+  user,
+}: {
+  user: AccountResType["data"] | null;
+}) {
   return (
     <header className="sticky top-0 z-50 border-b bg-background shadow-md mb-5">
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
@@ -40,12 +34,12 @@ export default async function HeaderComponent() {
             <span>Products</span>
           </Link>
           {user ? (
-            <div className="flex items-center space-x-4">
+            <Link href="/me" className="flex items-center space-x-4">
               <span className="text-sm font-medium">Xin chào, {user.name}</span>
               <Button variant="secondary" size="sm">
                 <ButtonLogout />
               </Button>
-            </div>
+            </Link>
           ) : (
             <>
               <Link
