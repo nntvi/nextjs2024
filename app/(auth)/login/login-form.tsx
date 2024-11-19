@@ -47,6 +47,7 @@ export default function LoginForm() {
         expiresAt: result.payload.data.expiresAt,
       });
       router.push("/me");
+      router.refresh();
     } catch (error: any) {
       handleErrorApi({
         error,
