@@ -14,7 +14,7 @@ export default async function ProductListPage() {
   const productList = payload.data;
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8  min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Product List
       </h1>
@@ -32,13 +32,15 @@ export default async function ProductListPage() {
             key={product.id}
             className="flex items-center p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 space-x-4"
           >
-            <Image
-              src={product.image}
-              alt={product.name}
-              width={100}
-              height={100}
-              className="w-32 h-32 object-cover rounded-md"
-            />
+            <Link href={`/products/${product.id}`}>
+              <Image
+                src={product.image}
+                alt={product.name}
+                width={100}
+                height={100}
+                className="w-32 h-32 object-cover rounded-md"
+              />
+            </Link>
             <div className="flex-1">
               <h3 className="text-xl font-semibold text-gray-800">
                 {product.name}
@@ -47,7 +49,7 @@ export default async function ProductListPage() {
             </div>
             {isAuthenticated && (
               <div className="flex space-x-2">
-                <Link href={`/products/${product.id}`}>
+                <Link href={`/products/${product.id}/edit`}>
                   <Button variant="outline" className="px-4 py-2">
                     Edit
                   </Button>
