@@ -1,11 +1,16 @@
 import productApiRequest from "@/apiRequests/product";
 import DeleteProduct from "@/app/products/_components/delete-product";
 import { Button } from "@/components/ui/button";
+import { Metadata } from "next";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
+export const metadata: Metadata = {
+  title: "Danh sách sản phẩm",
+  description: "Created by Vi Aibi",
+};
 export default async function ProductListPage() {
   const cookieStore = cookies();
   const sessionToken = cookieStore.get("sessionToken")?.value;

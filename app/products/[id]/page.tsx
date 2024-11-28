@@ -1,14 +1,28 @@
 import productApiRequest from "@/apiRequests/product";
 import ProductAddForm from "@/app/products/_components/product-add-form";
+import { ResolvingMetadata } from "next";
 import Image from "next/image";
-
-export default async function ProductDetail({
-  params,
-}: {
+import { cache } from "react";
+const getDetail = cache(productApiRequest.getDetail);
+type Props = {
   params: { id: string };
-}) {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+) {
+  const { payload } = await getDetail(Number(params.id));
+  const product = payload.data;
+  return {
+    title: product.name,
+    description: product.description,
+  };
+}
+
+export default async function ProductDetail({ params, searchParams }: Props) {
   let product = null;
-  const { payload } = await productApiRequest.getDetail(Number(params.id));
+  const { payload } = await getDetail(Number(params.id));
   product = payload.data;
   return (
     <div>

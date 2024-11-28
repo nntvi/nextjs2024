@@ -123,3 +123,5 @@ export const config = {
 ```
 
 Chỗ cần lưu ý là matcher "/products/:path\*" => chỉ cần url là products/... ta sẽ kiểm tra nó có phù hợp với `productEditRegex` không. Nếu đúng là đường dẫn edit mà ko có `sessionToken` nghĩa là chưa login => đá về login
+
+#### ! SEO title và description
