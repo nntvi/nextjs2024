@@ -125,3 +125,48 @@ export const config = {
 Chỗ cần lưu ý là matcher "/products/:path\*" => chỉ cần url là products/... ta sẽ kiểm tra nó có phù hợp với `productEditRegex` không. Nếu đúng là đường dẫn edit mà ko có `sessionToken` nghĩa là chưa login => đá về login
 
 #### ! SEO title và description
+
+Ví dụ đặt tên cho web mình là `Producto`
+Thì ở rooot layout mình cần khai báo như sau, để các page sau có thể sử dụng lại tên web mà không cần khai báo
+
+```bash
+export const metadata: Metadata = {
+  title: {
+    template: "%s | Producto",
+    default: "Producto",
+  },
+  description: "Created by Vi Aibi",
+};
+```
+
+Vậy ở trang Products, nếu người dùng update thông tin sản phẩm, thì thông tin mới vừa update (ví dụ như name, phải được update liền trên title web)
+
+=> Vậy làm sao thực hiện vấn đề này???
+Có một cái gọi là `cache` thuộc react. Sẽ bọc nó lại khi call api `getDetail`. Mới vào sẽ call api để lấy thông tin sản phẩm để SEO. Sau đó ko cần gọi lại api để lấy thông tin hiện chi tiết. Nhưng khi đata thay đổi, sẽ cache lại để hiện đúng với thông tin vừa update
+
+```bash
+import { cache } from "react";
+const getDetail = cache(productApiRequest.getDetail);
+type Props = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+) {
+  const { payload } = await getDetail(Number(params.id));
+  const product = payload.data;
+  return {
+    title: product.name,
+    description: product.description,
+  };
+}
+
+export default async function ProductDetail({ params, searchParams }: Props) {
+  let product = null;
+  const { payload } = await getDetail(Number(params.id));
+  product = payload.data;
+  ...
+)}
+```
