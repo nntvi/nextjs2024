@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import SlideSession from "@/components/slide-session";
 import accountApiRequest from "@/apiRequests/account";
 import { AccountResType } from "@/schemaValidations/account.schema";
+import { baseOpenGraph } from "@/app/shared-metadata";
 
 const inter = Inter({ subsets: ["vietnamese"] });
 
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
     default: "Producto",
   },
   description: "Created by Vi Aibi",
+  openGraph: baseOpenGraph,
 };
 
 export default async function RootLayout({

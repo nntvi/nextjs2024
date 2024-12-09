@@ -152,7 +152,7 @@ type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 export async function generateMetadata(
-  { params, searchParams }: Props,
+  { params, searchParams }: Props,76
   parent: ResolvingMetadata
 ) {
   const { payload } = await getDetail(Number(params.id));
@@ -170,3 +170,59 @@ export default async function ProductDetail({ params, searchParams }: Props) {
   ...
 )}
 ```
+
+#### ! Page Open Graph metadata
+
+Để có được các bài share hiện lên ở facebook gồm hình ảnh, title và description thì cần sử dụng tới OpenGraph => tốt cho SEO
+
+- Cần khai báo đường link khi deploy là gì ở file .env. Ví dụ: `NEXT_PUBLIC_URL=https://producto.com`
+- Khai báo tiếp ở `config.ts` url mới tạo ở .env trên
+- Ở `layout.ts` ta khai báo openGraph như sau
+
+  ````bash
+  export const metadata: Metadata = {
+    title: {
+      template: "%s | Producto",
+      default: "Producto",
+    },
+    description: "Created by Vi Aibi",
+    openGraph: baseOpenGraph,
+  };
+  ```
+  ###### Vậy baseOpenGraph là gì?
+  Nó là obj khai báo những thuộc tính sẽ lặp đi lặp lại ở các page, để ko phải khai báo lại nhiều lần. Khai báo file `shared-metadata.ts`
+
+  ```bash
+  export const baseOpenGraph = {
+    locale: "en_US",
+    type: "website",
+  };
+  ````
+
+- Ở trang product detail sẽ sử dụng như sau
+  ```bash
+  export async function generateMetadata(
+    { params, searchParams }: Props,
+    parent: ResolvingMetadata
+  ) {
+    const { payload } = await getDetail(Number(params.id));
+    const product = payload.data;
+    const url = envConfig.NEXT_PUBLIC_API + "/products/" + product.id;
+    return {
+      openGraph: {
+        title: product.name,
+        description: product.description,
+        url,
+        siteName: "Producto",
+        images: [
+          {
+            url: "https://nextjs.org/og.png", // Must be an absolute URL
+            width: 800,
+            height: 600,
+          },
+        ],
+        ...baseOpenGraph,
+      },
+    };
+  }
+  ```

@@ -1,5 +1,7 @@
 import productApiRequest from "@/apiRequests/product";
 import ProductAddForm from "@/app/products/_components/product-add-form";
+import { baseOpenGraph } from "@/app/shared-metadata";
+import envConfig from "@/config";
 import { ResolvingMetadata } from "next";
 import Image from "next/image";
 import { cache } from "react";
@@ -14,9 +16,22 @@ export async function generateMetadata(
 ) {
   const { payload } = await getDetail(Number(params.id));
   const product = payload.data;
+  const url = envConfig.NEXT_PUBLIC_API + "/products/" + product.id;
   return {
-    title: product.name,
-    description: product.description,
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      url,
+      siteName: "Producto",
+      images: [
+        {
+          url: "https://nextjs.org/og.png", // Must be an absolute URL
+          width: 800,
+          height: 600,
+        },
+      ],
+      ...baseOpenGraph,
+    },
   };
 }
 
