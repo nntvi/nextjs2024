@@ -226,3 +226,107 @@ export default async function ProductDetail({ params, searchParams }: Props) {
     };
   }
   ```
+
+#### ! Static Rendering vs Dynamic Rendering
+
+1. Static Rendering
+   Tạo ra html ngay tại thời điểm chạy `npm run build` => Sẽ tốt hơn với những content ít thay đổi, tối ưu hiệu năng máy chủ.
+2. Dynamic Rendering
+   Tạo ra html ngay thời điểm có request request đến server. Mỗi lần có request tạo ra 1 lần. => Phù hợp vs những content thay đổi thường xuyên
+
+NextJS sử dụng `Static Rendering` khi có thể. Chúng ta dùng `Dynamic function` trong component tree (children, parent component, hoặc layout...): cookies, search params(?a=1&b=2) thì page sẽ chuyển thành dynamic rendering
+
+=> Chính vì vậy, để chuyển thành static, thì chúng ta ko sử dụng cookies ở page layout.tsx, login, register... nữa mà chuyển sang lưu ở `localStorage`
+
+```bash
+export default async function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  // const cookieStore = cookies();
+  // const sessionToken = cookieStore.get("sessionToken")?.value;
+  let user: AccountResType["data"] | null = null;
+  // if (sessionToken) {
+  //   const data = await accountApiRequest.me(sessionToken);
+  //   user = data.payload.data;
+  // }
+
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AppProvider
+            // initialSessionToken={sessionToken || ""}
+            user={user}
+          >
+            <HeaderComponent user={user} />
+            {children}
+            <SlideSession />
+          </AppProvider>
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+Đã sửa như vậy phải sửa lại AppProvider
+
+```bash
+export default function AppProvider({
+  children,
+  // initialSessionToken = "",
+  user: userProp,
+}: {
+  children: React.ReactNode;
+  // initialSessionToken: string;
+  user?: User | null;
+}) {
+  const [user, setUser] = useState<User | null>(userProp || null);
+  // useState(() => {
+  //   if (isClient()) {
+  //     clientSessionToken.value = initialSessionToken;
+  //   }
+  // });
+
+  return (
+    <AppContext.Provider value={{ user, setUser }}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+```
+
+Quan trọng là ở file config http, chuyển sang lưu token ở localStorage, ví dụ 1 đoạn xử lý như sau
+
+```bash
+      if (!clientLogoutRequest) {
+          clientLogoutRequest = fetch("/api/auth/logout", {
+            method: "POST",
+            headers: {
+              ...baseHeaders,
+            } as any,
+            body: JSON.stringify({
+              force: true,
+            }),
+          });
+          try {
+            await clientLogoutRequest;
+          } catch (error) {
+          } finally {
+            localStorage.removeItem("sessionToken");
+            localStorage.removeItem("sessionTokenExpiresAt");
+            // clientSessionToken.value = "";
+            // clientSessionToken.expiresAt = new Date().toISOString();
+            clientLogoutRequest = null;
+            location.href = "/login";
+          }
+        }
+```

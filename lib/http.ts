@@ -76,32 +76,33 @@ class SessionToken {
   }
 }
 // chỉ lưu token ở client thôi
-export const clientSessionToken = new SessionToken();
+// export const clientSessionToken = new SessionToken();
 let clientLogoutRequest: null | Promise<any> = null;
+export const isClient = () => typeof window !== "undefined";
 
 const request = async <Response>(
   method: "GET" | "POST" | "PUT" | "DELETE",
   url: string,
   options?: CustomRequestInit | undefined
 ) => {
-  const body = options?.body
-    ? options.body instanceof FormData
-      ? options.body
-      : JSON.stringify(options.body)
-    : undefined;
-  const baseHeaders =
-    body instanceof FormData
-      ? {
-          Authorization: clientSessionToken.value
-            ? `Bearer ${clientSessionToken.value}`
-            : "",
-        }
-      : {
-          "Content-Type": "application/json",
-          Authorization: clientSessionToken.value
-            ? `Bearer ${clientSessionToken.value}`
-            : "",
-        };
+  let body: FormData | string | undefined = undefined;
+  if (options?.body instanceof FormData) {
+    body = options.body;
+  } else if (options?.body) {
+    body = JSON.stringify(options.body);
+  }
+
+  const baseHeaders: {
+    [key: string]: string;
+  } = body instanceof FormData ? {} : { "Content-Type": "application/json" };
+
+  if (isClient()) {
+    const sessionToken = localStorage.getItem("sessionToken");
+    if (sessionToken) {
+      baseHeaders.Authorization = `Bearer ${sessionToken}`;
+    }
+  }
+
   // nếu không truyền baseUrl (hoặc baseUrl = undefined) thì lấy từ envConfig.NEXT_PUBLIC_API_ENDPOINT
   // Nếu truyền baseUrl thì lấy giá trị truyền vào, truyền vào '' thì đồng nghĩa với việc chúng ta gọi API đầu Next.js Server
 
@@ -133,7 +134,7 @@ const request = async <Response>(
         data as { status: 422; payload: EntityErrorPayload }
       );
     } else if (res.status === AUTHORIZATION_ERROR_STATUS) {
-      if (typeof window !== "undefined") {
+      if (isClient()) {
         if (!clientLogoutRequest) {
           clientLogoutRequest = fetch("/api/auth/logout", {
             method: "POST",
@@ -144,11 +145,17 @@ const request = async <Response>(
               force: true,
             }),
           });
-          await clientLogoutRequest;
-          clientSessionToken.value = "";
-          clientSessionToken.expiresAt = new Date().toISOString();
-          clientLogoutRequest = null;
-          location.href = "/login";
+          try {
+            await clientLogoutRequest;
+          } catch (error) {
+          } finally {
+            localStorage.removeItem("sessionToken");
+            localStorage.removeItem("sessionTokenExpiresAt");
+            // clientSessionToken.value = "";
+            // clientSessionToken.expiresAt = new Date().toISOString();
+            clientLogoutRequest = null;
+            location.href = "/login";
+          }
         }
       } else {
         const sessionToken = (options?.headers as any)?.Authorization?.split(
@@ -161,16 +168,21 @@ const request = async <Response>(
     }
   }
   // đảm bảo việc xử lý chỉ chạy ở phía client
-  if (typeof window !== "undefined") {
+  if (isClient()) {
     if (
       ["auth/login", "auth/register"].some(
         (item) => item === normalizePath(url)
       )
     ) {
-      clientSessionToken.value = (payload as LoginResType).data.token;
+      const { token, expiresAt } = (payload as LoginResType).data;
+      // clientSessionToken.value = (payload as LoginResType).data.token;
+      localStorage.setItem("sessionToken", token);
+      localStorage.setItem("sessionTokenExpiresAt", expiresAt);
     } else if ("auth/logout" === normalizePath(url)) {
-      clientSessionToken.value = "";
-      clientSessionToken.expiresAt = new Date().toISOString();
+      // clientSessionToken.value = "";
+      // clientSessionToken.expiresAt = new Date().toISOString();
+      localStorage.removeItem("sessionToken");
+      localStorage.removeItem("sessionTokenExpiresAt");
     }
   }
   return data;

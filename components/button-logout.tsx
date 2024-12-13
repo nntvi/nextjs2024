@@ -14,7 +14,6 @@ export default function ButtonLogout() {
     try {
       await authApiRequest.logoutFromNextClientToServer();
       router.push("/login");
-      router.refresh();
     } catch (error) {
       handleErrorApi({
         error,
@@ -22,6 +21,10 @@ export default function ButtonLogout() {
       authApiRequest.logoutFromNextClientToServer(true).then((res) => {
         router.push(`login?redirectFrom=${pathname}`);
       });
+    } finally {
+      localStorage.removeItem("sessionToken");
+      localStorage.removeItem("sessionTokenExpiresAt");
+      router.refresh();
     }
   };
   return (

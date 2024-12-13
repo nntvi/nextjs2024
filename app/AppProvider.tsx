@@ -1,5 +1,6 @@
 "use client";
-import { clientSessionToken } from "@/lib/http";
+import { isClient } from "@/lib/http";
+// import { clientSessionToken } from "@/lib/http";
 import { AccountResType } from "@/schemaValidations/account.schema";
 import { useLayoutEffect, useState, createContext, useContext } from "react";
 
@@ -18,19 +19,19 @@ export const useAppContext = () => {
 
 export default function AppProvider({
   children,
-  initialSessionToken = "",
+  // initialSessionToken = "",
   user: userProp,
 }: {
   children: React.ReactNode;
-  initialSessionToken: string;
+  // initialSessionToken: string;
   user?: User | null;
 }) {
   const [user, setUser] = useState<User | null>(userProp || null);
-  useState(() => {
-    if (typeof window !== "undefined") {
-      clientSessionToken.value = initialSessionToken;
-    }
-  });
+  // useState(() => {
+  //   if (isClient()) {
+  //     clientSessionToken.value = initialSessionToken;
+  //   }
+  // });
 
   return (
     <AppContext.Provider value={{ user, setUser }}>

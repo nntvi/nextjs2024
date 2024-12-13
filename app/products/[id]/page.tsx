@@ -16,7 +16,8 @@ export async function generateMetadata(
 ) {
   const { payload } = await getDetail(Number(params.id));
   const product = payload.data;
-  const url = envConfig.NEXT_PUBLIC_API + "/products/" + product.id;
+  // const url = envConfig.NEXT_PUBLIC_API + "/products/" + product.id;
+  const url = "/products/" + product.id;
   return {
     openGraph: {
       title: product.name,
