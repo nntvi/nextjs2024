@@ -12,7 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { handleErrorApi } from "@/lib/utils";
 import {
   CreateProductBody,
   CreateProductBodyType,
@@ -25,6 +24,7 @@ import { useRef, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
+import { handleErrorApi } from "@/utils/client/utils";
 type Product = ProductResType["data"];
 const ProductAddForm = ({ product }: { product?: Product }) => {
   const [loading, setLoading] = useState(false);

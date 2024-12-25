@@ -2,7 +2,7 @@
 
 import accountApiRequest from "@/apiRequests/account";
 import envConfig from "@/config";
-import { handleErrorApi } from "@/lib/utils";
+import { handleErrorApi } from "@/utils/client/utils";
 import { cookies } from "next/headers";
 import { useEffect } from "react";
 

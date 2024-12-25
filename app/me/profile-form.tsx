@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { handleErrorApi } from "@/lib/utils";
 import {
   AccountResType,
   UpdateMeBody,
@@ -23,6 +22,7 @@ import {
 } from "@/schemaValidations/account.schema";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { handleErrorApi } from "@/utils/client/utils";
 type Profile = AccountResType["data"];
 export default function ProfileForm({ profile }: { profile: Profile }) {
   const [loading, setLoading] = useState(false);

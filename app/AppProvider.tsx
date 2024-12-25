@@ -8,6 +8,8 @@ import {
   createContext,
   useContext,
   useEffect,
+  useReducer,
+  useCallback,
 } from "react";
 
 type User = AccountResType["data"];
@@ -47,12 +49,22 @@ export default function AppProvider({
   //     clientSessionToken.value = initialSessionToken;
   //   }
   // });
-  const setUser = (user: User | null) => {
-    setUserState(user);
-    if (isClient()) {
-      localStorage.setItem("user", JSON.stringify(user));
-    }
-  };
+  // const setUser = (user: User | null) => {
+  //   setUserState(user);
+  //   if (isClient()) {
+  //     localStorage.setItem("user", JSON.stringify(user));
+  //   }
+  // };
+
+  const setUser = useCallback(
+    (user: User | null) => {
+      setUserState(user);
+      if (isClient()) {
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+    },
+    [setUserState]
+  );
   useEffect(() => {
     const _user = localStorage.getItem("user");
     setUserState(_user ? JSON.parse(_user) : null);

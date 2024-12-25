@@ -14,9 +14,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import productApiRequest from "@/apiRequests/product";
-import { handleErrorApi } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { handleErrorApi } from "@/utils/client/utils";
 export default function DeleteProduct({
   product,
 }: {

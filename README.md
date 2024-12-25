@@ -339,3 +339,87 @@ Dùng localStorage ở client để check Authenticate => Lợi ích của việ
 
 1. Xoá bỏ `{ cache: 'no-store'}` ở api getList products
 2. Ở `AppProvider` đang sử dụng `isAuthenticated` để tính toán từ state `user`. Sử dụng `useEffect` để bắt ở đoạn này. Đổi chủ yếu ở cách set user vào localStorage để ứng dụng cho login, register, logout
+
+#### ! Sai lầm làm tăng bundle size web NextJS
+
+Đây là kết quả của đợt build lần 1
+
+---
+
+Route (app) Size First Load JS
+┌ ○ / 141 B 87.2 kB
+├ ○ /\_not-found 871 B 87.9 kB
+├ ƒ /api/auth 0 B 0 B
+├ ƒ /api/auth/logout 0 B 0 B
+├ ƒ /api/auth/slide-session 0 B 0 B
+├ ○ /login 1.03 kB 268 kB
+├ ○ /logout 2.47 kB 256 kB
+├ ƒ /me 3.77 kB 267 kB
+├ ○ /products 12.5 kB 281 kB
+├ ƒ /products/[id] 735 B 92.9 kB
+├ ƒ /products/[id]/edit 190 B 274 kB
+├ ○ /products/add 182 B 274 kB
+├ ○ /register 1.08 kB 268 kB
+└ ○ /robots.txt 0 B 0 B
+
+- First Load JS shared by all 87.1 kB
+  ├ chunks/23-c14409c151556378.js 31.5 kB
+  ├ chunks/fd9d1056-2f7132ad9199e24a.js 53.6 kB
+  └ other shared chunks (total) 1.96 kB
+
+ƒ Middleware 27.1 kB
+
+---
+
+Sau khi cài
+
+```bash
+npm i @next/bundle-analyzer
+# or
+yarn add @next/bundle-analyzer
+```
+
+và chạy lệnh `ANALYZE=true npm run build`
+
+ta thấy `crypto browserify` chiếm quá nhiều. Vì sao????
+Thư viện này chỉ có bên NodeJS. Nên những thằng sử dụng crypto mà muốn chạy bên browser thì phải chạy browserify này. Mà thằng này được sử dụng trong việc gì?
+
+Thường dùng trong các hàm băm, hash token. Mà những hàm này chúng ta đang sử dụng chung trong file xử lý tên là `utils` nằm trong thư mục `lib`.
+
+Chính vì vậy, khi có những page chỉ sử dụng một số hàm khác trong `utils` như `nối chuỗi` hoặc tính toán gì đó, phải add vào cả browserify => rất bất tiện.
+
+=> Chia folder như sau
+utils/
+├── client/
+│ └── utils.ts  
+├── server/
+└── utils.ts
+
+Hàm chạy hash token sẽ nằm ở server, còn các hàm còn lại sẽ xử lý ở client. Và kết quả như sau
+
+---
+
+Route (app) Size First Load JS
+┌ ○ / 141 B 87.2 kB
+├ ○ /\_not-found 871 B 87.9 kB
+├ ƒ /api/auth 0 B 0 B
+├ ƒ /api/auth/logout 0 B 0 B
+├ ƒ /api/auth/slide-session 0 B 0 B
+├ ○ /login 1.04 kB 268 kB
+├ ○ /logout 1.71 kB 248 kB
+├ ƒ /me 3.76 kB 267 kB
+├ ○ /products 12.5 kB 281 kB
+├ ƒ /products/[id] 175 B 92.3 kB
+├ ƒ /products/[id]/edit 150 B 274 kB
+├ ○ /products/add 150 B 274 kB
+├ ○ /register 1.09 kB 268 kB
+└ ○ /robots.txt 0 B 0 B
+
+- First Load JS shared by all 87.1 kB
+  ├ chunks/23-c14409c151556378.js 31.5 kB
+  ├ chunks/fd9d1056-2f7132ad9199e24a.js 53.6 kB
+  └ other shared chunks (total) 1.96 kB
+
+ƒ Middleware 27.1 kB
+
+---

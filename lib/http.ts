@@ -1,6 +1,6 @@
 import envConfig from "@/config";
-import { normalizePath } from "@/lib/utils";
 import { LoginResType } from "@/schemaValidations/auth.schema";
+import { normalizePath } from "@/utils/server/utils";
 import { redirect } from "next/navigation";
 
 const promiseDelay = (ms: number) =>

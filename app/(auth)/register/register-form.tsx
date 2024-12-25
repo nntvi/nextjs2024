@@ -22,8 +22,8 @@ import envConfig from "@/config";
 import authApiRequest from "@/apiRequests/auth";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { handleErrorApi } from "@/lib/utils";
 import { useAppContext } from "@/app/AppProvider";
+import { handleErrorApi } from "@/utils/client/utils";
 
 export default function RegisterForm() {
   const [loading, setLoading] = useState(false);

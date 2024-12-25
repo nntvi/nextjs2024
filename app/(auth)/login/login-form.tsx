@@ -17,9 +17,9 @@ import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema";
 import { useToast } from "@/components/ui/use-toast";
 import authApiRequest from "@/apiRequests/auth";
 import { useRouter } from "next/navigation";
-import { handleErrorApi } from "@/lib/utils";
 import { useState } from "react";
 import { useAppContext } from "@/app/AppProvider";
+import { handleErrorApi } from "@/utils/client/utils";
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const { setUser } = useAppContext();

@@ -2,7 +2,7 @@
 import authApiRequest from "@/apiRequests/auth";
 import { useAppContext } from "@/app/AppProvider";
 import { Button } from "@/components/ui/button";
-import { handleErrorApi } from "@/lib/utils";
+import { handleErrorApi } from "@/utils/client/utils";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function ButtonLogout() {
