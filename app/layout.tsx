@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import HeaderComponent from "@/components/ui/header";
+// import HeaderComponent from "@/components/ui/header";
 import { Toaster } from "@/components/ui/toaster";
 import AppProvider from "@/app/AppProvider";
 // import { cookies } from "next/headers";
@@ -10,7 +10,10 @@ import SlideSession from "@/components/slide-session";
 import accountApiRequest from "@/apiRequests/account";
 import { AccountResType } from "@/schemaValidations/account.schema";
 import { baseOpenGraph } from "@/app/shared-metadata";
-
+import dynamic from "next/dynamic";
+const HeaderComponent = dynamic(() => import("@/components/ui/header"), {
+  ssr: false,
+});
 const inter = Inter({ subsets: ["vietnamese"] });
 
 export const metadata: Metadata = {
@@ -45,10 +48,12 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <AppProvider
-            // initialSessionToken={sessionToken || ""}
-            user={user}
+          // initialSessionToken={sessionToken || ""}
+          // user={user}
           >
-            <HeaderComponent user={user} />
+            <HeaderComponent
+            //  user={user}
+            />
             {children}
             <SlideSession />
           </AppProvider>

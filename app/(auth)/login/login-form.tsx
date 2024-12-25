@@ -19,8 +19,10 @@ import authApiRequest from "@/apiRequests/auth";
 import { useRouter } from "next/navigation";
 import { handleErrorApi } from "@/lib/utils";
 import { useState } from "react";
+import { useAppContext } from "@/app/AppProvider";
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
+  const { setUser } = useAppContext();
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<LoginBodyType>({
@@ -46,6 +48,7 @@ export default function LoginForm() {
         sessionToken: result.payload.data.token,
         expiresAt: result.payload.data.expiresAt,
       });
+      setUser(result.payload.data.account);
       router.push("/me");
       router.refresh();
     } catch (error: any) {

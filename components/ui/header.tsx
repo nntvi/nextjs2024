@@ -1,14 +1,13 @@
+"use client";
+import { useAppContext } from "@/app/AppProvider";
 import ButtonLogout from "@/components/button-logout";
 import { ModeToggle } from "@/components/toggle-theme";
 import { Button } from "@/components/ui/button";
 import { AccountResType } from "@/schemaValidations/account.schema";
 import Link from "next/link";
 
-export default async function HeaderComponent({
-  user,
-}: {
-  user: AccountResType["data"] | null;
-}) {
+export default function HeaderComponent() {
+  const { user } = useAppContext();
   return (
     <header className="sticky top-0 z-50 border-b bg-background shadow-md mb-5">
       <div className="container mx-auto flex items-center justify-between px-4 py-3">

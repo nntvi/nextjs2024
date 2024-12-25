@@ -1,20 +1,18 @@
 import productApiRequest from "@/apiRequests/product";
-import DeleteProduct from "@/app/products/_components/delete-product";
-import { Button } from "@/components/ui/button";
+import ProductAddButton from "@/app/products/_components/product-add-button";
+import ProductEditButton from "@/app/products/_components/product-edit-button";
 import { Metadata } from "next";
-import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
 export const metadata: Metadata = {
   title: "Danh sách sản phẩm",
   description: "Created by Vi Aibi",
 };
 export default async function ProductListPage() {
-  const cookieStore = cookies();
-  const sessionToken = cookieStore.get("sessionToken")?.value;
-  const isAuthenticated = Boolean(sessionToken);
+  // const cookieStore = cookies();
+  // const sessionToken = cookieStore.get("sessionToken")?.value;
+  // const isAuthenticated = Boolean(sessionToken);
   const { payload } = await productApiRequest.getList();
   const productList = payload.data;
 
@@ -23,14 +21,15 @@ export default async function ProductListPage() {
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Product List
       </h1>
-      {isAuthenticated && (
+      {/* {isAuthenticated && (
         <Link
           href="/products/add"
           className="inline-block mb-6 px-6 py-2 bg-blue-600 text-white font-semibold text-md rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
         >
           Create Product
         </Link>
-      )}
+      )} */}
+      <ProductAddButton />
       <div className="space-y-6">
         {productList.map((product) => (
           <div
@@ -52,7 +51,7 @@ export default async function ProductListPage() {
               </h3>
               <p className="text-lg text-gray-600">${product.price}</p>
             </div>
-            {isAuthenticated && (
+            {/* {isAuthenticated && (
               <div className="flex space-x-2">
                 <Link href={`/products/${product.id}/edit`}>
                   <Button variant="outline" className="px-4 py-2">
@@ -61,7 +60,8 @@ export default async function ProductListPage() {
                 </Link>
                 <DeleteProduct product={product} />
               </div>
-            )}
+            )} */}
+            <ProductEditButton product={product} />
           </div>
         ))}
       </div>

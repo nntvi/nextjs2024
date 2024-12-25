@@ -23,10 +23,11 @@ import authApiRequest from "@/apiRequests/auth";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { handleErrorApi } from "@/lib/utils";
+import { useAppContext } from "@/app/AppProvider";
 
 export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
-
+  const { setUser } = useAppContext();
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<RegisterBodyType>({
@@ -47,6 +48,7 @@ export default function RegisterForm() {
         sessionToken: result.payload.data.token,
         expiresAt: result.payload.data.expiresAt,
       });
+      setUser(result.payload.data.account);
       toast({
         title: "Đăng ký",
         description: result?.payload?.message ?? "Đăng ký thành công",

@@ -322,7 +322,7 @@ Quan trọng là ở file config http, chuyển sang lưu token ở localStorage
           } catch (error) {
           } finally {
             localStorage.removeItem("sessionToken");
-            localStorage.removeItem("sessionTokenExpiresAt");
+            xslocalStorage.removeItem("sessionTokenExpiresAt");
             // clientSessionToken.value = "";
             // clientSessionToken.expiresAt = new Date().toISOString();
             clientLogoutRequest = null;
@@ -330,3 +330,12 @@ Quan trọng là ở file config http, chuyển sang lưu token ở localStorage
           }
         }
 ```
+
+#### ! Chuyển page Product từ Dynamic sang Static Rendering
+
+Hiện tại ở productList đang dùng `cookies` để lấy sessionToken mà client gửi lên => để xem có Authenticate hay ko, để show sản phẩm. Nếu ko dùng cookies nữa, thì làm cách nào để server biết đã có Authenticate hay chưa???? Nếu ko dùng cookies thì server ko biết đc...
+
+Dùng localStorage ở client để check Authenticate => Lợi ích của việc này mình chuyển được page của mình thành static Rendering => render nhanh hơn
+
+1. Xoá bỏ `{ cache: 'no-store'}` ở api getList products
+2. Ở `AppProvider` đang sử dụng `isAuthenticated` để tính toán từ state `user`. Sử dụng `useEffect` để bắt ở đoạn này. Đổi chủ yếu ở cách set user vào localStorage để ứng dụng cho login, register, logout
